@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+
+    <title>Blake Erickson</title>
+
+    <!-- Bootstrap core CSS -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/site.css"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Blake Erickson</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px;">
+      <h1 id="php-autoload-classes">PHP Autoload Classes</h1>
+<p>I&#39;ve been working for awhile now to clean up a legacy PHP application by breaking up extremely large php files into separate much smaller class files. While the code base is becoming much cleaner and easier to manage its is full of require statements. Personally I don&#39;t think require statements are necessarily a bad thing, but it just becomes another things to manage and potentially something that can break.</p>
+<p>I&#39;ve been making great progress on cleaning up our codebase, but I wasn&#39;t really sure about some of the best practices in PHP when building a framework so I purchased &quot;<a href="https://leanpub.com/mlaphp">Modernizing Legacy Applications in PHP</a>&quot; which has been extremely helpful. One of the first things it talks about is autoloading.</p>
+<p>To eliminate all of these <code>require</code> statements you can call an autoloader method as one of the first things your app runs. Be sure to use <a href="http://php.net/manual/en/function.spl-autoload-register.php"><code>spl_autoload_register</code></a> and not the old __autoload function.</p>
+<p>I&#39;m actually autoloading two different directories. One is a directory called <code>app</code> and the other is a directory in <code>lib/framework</code>. I put my autoloader inside of <code>lib/framework</code> along with my other code like my model, controller, and view classes that I extend. The problem that I had was that inside of my app directly I also have my assets folder and I also have a templates directory which contain mostly html code but are not class files. Anyways I needed to exclude my <code>app/assets</code> directory and my <code>app/templates</code> directory inside of my autoloader. To exclude my <code>app/assets</code> directly I simply check to make sure the file ends with a php extention before requiring it. The problem is that this method would still include my <code>app/templates</code> files because they end in <code>.php</code>. So to exclude this directory I simply check to see if the path string contains &#39;templates&#39; and if it does I don&#39;t require the php file.</p>
+<p>Here is my autoloader file that I&#39;m calling from <code>setup.php</code>:</p>
+<pre><code>&lt;?php
+namespace Framework;
+
+class Autoloader
+{
+    public function loadApp($class)
+    {
+        $dir = __DIR__ . &#39;/../../app&#39;;
+        $this-&gt;load($class, $dir);
+    }
+
+    public function loadFramework($class)
+    {
+        $dir = __DIR__ . &#39;/..&#39;;
+        $this-&gt;load($class, $dir);
+    }
+
+    // private
+
+    private function load($class, $dir)
+    {
+        // strip off any leading namespace separator from PHP 5.3
+        $class = ltrim($class, &#39;\\&#39;);
+
+        // the eventual file path
+        $subpath = &#39;&#39;;
+
+        // is there a PHP 5.3 namespace separator?
+        $pos = strrpos($class, &#39;\\&#39;);
+        if ($pos !== false) {
+            // convert namespace separators to directory separators
+            $ns = substr($class, 0, $pos);
+            $subpath = str_replace(&#39;\\&#39;, DIRECTORY_SEPARATOR, $ns)
+                     . DIRECTORY_SEPARATOR;
+            // remove the namespace portion from the final class name portion
+            $class = substr($class, $pos + 1);
+        }
+
+        // convert underscores in the class name to directory separators
+        $subpath .= str_replace(&#39;_&#39;, DIRECTORY_SEPARATOR, $class);
+
+        // previx with the central directory location and suffix with .php,
+        // then require it.
+        $file = $dir . DIRECTORY_SEPARATOR . $subpath . &#39;.php&#39;;
+        if (is_file($file)) {
+            if (strpos($file, &#39;Templates&#39;) !== false) {
+                // skip
+            } else {
+                require $file;
+            }
+        }
+    }
+}
+</code></pre><p>And here is my <code>lib/setup.php</code> file:</p>
+<pre><code>&lt;?php
+require_once __DIR__ . &#39;/framework/autoloader.php&#39;;
+
+$autoloader = new \Framework\Autoloader();
+
+spl_autoload_register(array($autoloader, &#39;loadFramework&#39;));
+spl_autoload_register(array($autoloader, &#39;loadApp&#39;));
+</code></pre>
+    <hr/>
+        <div class="footer">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            Blake Erickson
+                            <br/>
+                            Software Developer at
+                            <a href="https://royaljay.com/">Royal Jay</a>
+                            <br/>
+                            o.blakeerickson@gmail.com
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            <a href="http://github.com/oblakeerickson/">github.com/oblakeerickson</a><br />
+                            <a href="http://twitter.com/oblakeerickson/">twitter.com/oblakeerickson</a><br />
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.container -->
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+        var pageTracker = _gat._getTracker("UA-42191832-1");
+        pageTracker._trackPageview();
+    </script>
+    <!-- Google Analytics end -->
+
+</body>
+</html>
+

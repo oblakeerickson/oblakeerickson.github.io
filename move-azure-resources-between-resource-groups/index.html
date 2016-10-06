@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+
+    <title>Blake Erickson</title>
+
+    <!-- Bootstrap core CSS -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/site.css"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Blake Erickson</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px;">
+      <h1 id="move-an-azure-web-app-to-a-new-resource-group">Move an Azure Web App to a new Resource Group</h1>
+<p>If you have an Azure Web App that you need to move to a different Resource Group you will need to use the Azure Resource Manager inside of Azure PowerShell. Currently this cannot be done within the Azure Portal.</p>
+<h2 id="install-azure-powershell-v1-0-x">Install Azure PowerShell v1.0.x</h2>
+<p>There is a new AzureResourceManager that is part of Azure PowerShell v1.0.0, so you need to make sure you have the latest Azure PowerShell installed which you can download from their <a href="https://github.com/Azure/azure-powershell/releases">GitHub releases page</a>.</p>
+<h2 id="install-azurerm">Install AzureRM</h2>
+<p>To <a href="https://msdn.microsoft.com/en-us/library/mt125356.aspx">install AzureResourceManager</a> open up PowerShell in Administrator mode and type in the following commands:</p>
+<pre><code>Install-Module AzureRM
+Install-AzureRM
+Import-AzureRM
+</code></pre><h2 id="using-azurerm">Using AzureRM</h2>
+<p>Before we start using AzureRM we need to login using:</p>
+<pre><code>Login-AzureRmAccount
+</code></pre><p>To see a list of your subscriptions you can use:</p>
+<pre><code>Get-AzureRmSubscription
+</code></pre><p>And then you can switch Subscriptions if you need to with:</p>
+<pre><code>Select-AzureRmSubscription -SubscriptionName BizSpark
+</code></pre><p>To get a list of Resource Groups you can use this command:</p>
+<pre><code>Get-AzureRmResourceGroup
+</code></pre><p>And to get a list of Resources you can use this command:</p>
+<pre><code>Get-AzureRmResource
+</code></pre><p>Normally I would like to list just the resources inside of Resource Group like this:</p>
+<pre><code>Get-AzureRmResource -ResourceGroupName &quot;20151208-group&quot;
+</code></pre><p>But there is a <a href="https://github.com/Azure/azure-powershell/issues/1259">bug</a> currently and so to do any filtering on the <code>Get-AzureRmResource</code> command you have to use <code>-ResourceName</code> along with it:</p>
+<pre><code>Get-AzureRmResource -ResourceGroupName &quot;20151208-group&quot; -ResourceName &quot;20151208-webapp&quot;
+</code></pre><p>The problem with having to do this though is that it excludes some resources.</p>
+<h3 id="moving-an-azure-web-app-to-a-new-resource-group">Moving an Azure Web App to a new Resource Group</h3>
+<p>If you would like to move an Azure Web App to a new Resource Group you need to find it&#39;s <code>ResourceId</code> using the</p>
+<pre><code>Get-AzureRmResource
+</code></pre><p>command. Most likely that will list a lot of resources, so it can be helpful to narrow them down a bit and store the results in an array so that we can pass the <code>ResourceId</code> easily into the <code>Move-AzureRmResource</code> command. If we want to select just our web app we can get it using:</p>
+<pre><code>$r = Get-AzureRmResource -ResourceName &quot;20151208-webapp&quot; -ResourceType &quot;Microsoft.Web/sites&quot; -ResourceGroupName &quot;20151208-group&quot;
+</code></pre><p>If you then type in just</p>
+<pre><code>$r
+</code></pre><p>you will see that we only selected one resource (hopefully).</p>
+<p><strong>Note</strong>: <em>For Web Apps you will also have 3 additional resources for application insights but apparently those can&#39;t be moved to a new resource group, so you just need to select the individual Web App. For other resources like VMs you need to move all the resources along with it or it can&#39;t be moved to a new Resource Group.</em></p>
+<p> and then you can move it to a different Resource Group using:</p>
+<pre><code>Move-AzureRmResource -DestinationResourceGroupName &quot;20151208-group-b&quot; -ResourceId $r.ResourceId
+</code></pre><p>Your PowerShell will then sit there for some time while it moves your app to the new resource.</p>
+<h3 id="video-walk-through">Video Walk Through</h3>
+<p>Here is a video walk though where I show you how I transfer a web app to a new resource group:</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/YTLokq5riSM?rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+
+
+
+    <hr/>
+        <div class="footer">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            Blake Erickson
+                            <br/>
+                            Software Developer at
+                            <a href="https://royaljay.com/">Royal Jay</a>
+                            <br/>
+                            o.blakeerickson@gmail.com
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            <a href="http://github.com/oblakeerickson/">github.com/oblakeerickson</a><br />
+                            <a href="http://twitter.com/oblakeerickson/">twitter.com/oblakeerickson</a><br />
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.container -->
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+        var pageTracker = _gat._getTracker("UA-42191832-1");
+        pageTracker._trackPageview();
+    </script>
+    <!-- Google Analytics end -->
+
+</body>
+</html>
+

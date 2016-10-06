@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+
+    <title>Blake Erickson</title>
+
+    <!-- Bootstrap core CSS -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/site.css"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Blake Erickson</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px;">
+      <h1 id="getting-started-with-nunit">Getting Started with NUnit</h1>
+<p>NUnit is not the default testing framework when building .NET applications and
+getting it setup can be a little bit tricky. To help alleviate some of the setup
+pain this article will walk you though how to get NUnit added to your Solution
+and show you how to write your first test.</p>
+<h2 id="step-1-create-a-new-solution">Step 1: Create a New Solution</h2>
+<p>You can use an existing Solution/Project if you have one, but for the sake of
+this tutorial we are going to create a new Solution so that we have a blank
+slate.</p>
+<ol>
+<li>Open of Visual Studio</li>
+<li>Select &quot;New Project...&quot;</li>
+<li>Name your project NUnitExample</li>
+<li>Click OK</li>
+<li>Select the &quot;Web API&quot; template and make sure &quot;MVC&quot; and &quot;Web API&quot; boxes are
+checked.</li>
+<li>Make sure authentication is set to &quot;No Authentication&quot;</li>
+<li>Click OK</li>
+</ol>
+<h2 id="step-2-create-a-tests-project">Step 2: Create a Tests Project</h2>
+<p>It&#39;s a good idea to isolate your tests from your main project so that you can
+easily exclude them from running in production. In order to do that we need to
+create another project inside of our solution.</p>
+<ol>
+<li>Right-click on the solution and select Add -&gt; New Project</li>
+<li>Under <code>Installed -&gt; Visual C# -&gt; Web -&gt; Visual Studio 2012</code> Select &quot;ASP.NET
+Empty Web Application&quot; </li>
+<li>Name the project &quot;NUnitExample.Tests&quot;</li>
+<li>Click OK</li>
+</ol>
+<h2 id="step-3-install-the-nunit-package">Step 3: Install the NUnit Package</h2>
+<p>Now that we have our project setup it is time to install NUnit. There are
+probably several different ways to do this but I think the easiest way is to
+simply install the NuGet package for NUnit.</p>
+<ol>
+<li>Open up the Package Manage Console</li>
+<li>Type: <code>Install-Package NUnit NUnitExample.Tests</code> and press enter</li>
+</ol>
+<p>The console should have output that looks something like:</p>
+<pre><code>Installing &#39;NUnit 2.6.4&#39;.
+Successfully installed &#39;NUnit 2.6.4&#39;.
+Adding &#39;NUnit 2.6.4&#39; to NUnitExample.
+Successfully added &#39;NUnit 2.6.4&#39; to NUnitExample.Tests.
+</code></pre><h2 id="step-4-test-the-values-controller">Step 4: Test the Values Controller</h2>
+<p>We need a place where we can write our test for the Values Controller. To do
+that we can create an empty class file.</p>
+<ol>
+<li>Right-click on the NUnitExample.Tests project and select Add -&gt; Class...</li>
+<li>Name the class ValuesControllerTests.cs</li>
+<li>Click OK</li>
+</ol>
+<p>Now we need to setup our test file:</p>
+<ol>
+<li>Add the following using statement to the top of the file <code>using
+NUnit.Framework;</code></li>
+<li>Add this attribute above the class name: <code>[TestFixture]</code></li>
+<li>Create a method called <code>ReturnsAListOfValues</code></li>
+<li>Above that method create an attribute called <code>[Test]</code></li>
+</ol>
+<p>Before we start writing our test we will need to add a reference to the
+NUnitExample project and add another using statement.</p>
+<ol>
+<li>Right-click on the NUnitExample.Tests project and select <code>Add -&gt; Reference...</code></li>
+<li>Select the &quot;Solution&quot; option in the left pane</li>
+<li>Check the box next to &quot;NUnitExample&quot;</li>
+<li>Click OK</li>
+<li>Now add the following using statement to the top of the file: <code>using
+NUnitExample.Controllers;</code></li>
+</ol>
+<p>Since our test is actually creating an instance of a controller we need to add a
+reference to the .NET library responsible for HTTP stuff, like controllers. Open
+up the Package Manage Console again and install the following package:</p>
+<pre><code>Install-Package Microsoft.AspNet.WebApi.Core --Version 5.2.2 NUnitExample.Tests
+</code></pre><p><em>Note: Version 5.2.2 of WebApi.Core is what I currently have installed in the
+NUnitExample project. To verify what version you have installed you can open up
+the NUnitExample project, click on References and click for System.Web.Http. In
+the Properties window under Version you can see which version you have
+installed.</em></p>
+<p>Now at the top of our file we can add another using statement:</p>
+<pre><code>using System.Web.Http;
+</code></pre><p>Your file should now look like:</p>
+<pre><code>using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using NUnitExample.Controllers;
+using System.Web.Http;
+
+namespace Tests
+{
+    [TestFixture]
+    class ValuesControllerTests
+    {
+        [Test]
+        public void ReturnsAListOfValues()
+        {
+
+        }
+    }
+}
+</code></pre><h2 id="step-5-writing-the-test">Step 5: Writing the Test</h2>
+<p>Now that we finally have everything setup we can begin writing our first test.
+Inside of the <code>ReturnsAListOfValues()</code> method add the following:</p>
+<pre><code>string[] expected = { &quot;value1&quot;, &quot;value2&quot; };
+
+ValuesController controller = new ValuesController();
+var result = controller.Get();
+
+Assert.AreEqual(expected, result);
+</code></pre><p>For the first line we created our expected result. In the middle section we
+created a new instance of the Values controller and then called the .Get()
+method. On the last line we check to see if the two results are equal.</p>
+<h2 id="step-6-running-the-test">Step 6: Running the Test</h2>
+<p>Before we can run the test we actually need to install the NUnit Test Runner.</p>
+<ol>
+<li>Select <code>Tools -&gt; Extensions and Updates</code></li>
+<li>On the left pane select &quot;Online&quot;</li>
+<li>In the search box type &#39;NUnit&#39;</li>
+<li>The first result should be NUnit Test Adapter, click install.</li>
+<li>Click Close</li>
+</ol>
+<p>Now to run our tests, from the top menu in Visual Studio, select <code>TEST -&gt; Run -&gt;
+All Tests</code>. Once the test has finished running you should see a green check mark
+next to our test signifying that the test passed.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Writing the actual test is not too bad, but getting everything set up can take
+some effort. The good news is that once you have everything setup you shouldn&#39;t
+have to do it again.</p>
+
+    <hr/>
+        <div class="footer">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            Blake Erickson
+                            <br/>
+                            Software Developer at
+                            <a href="https://royaljay.com/">Royal Jay</a>
+                            <br/>
+                            o.blakeerickson@gmail.com
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            <a href="http://github.com/oblakeerickson/">github.com/oblakeerickson</a><br />
+                            <a href="http://twitter.com/oblakeerickson/">twitter.com/oblakeerickson</a><br />
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.container -->
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+        var pageTracker = _gat._getTracker("UA-42191832-1");
+        pageTracker._trackPageview();
+    </script>
+    <!-- Google Analytics end -->
+
+</body>
+</html>
+

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+
+    <title>Blake Erickson</title>
+
+    <!-- Bootstrap core CSS -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/site.css"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Blake Erickson</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px;">
+      <h1 id="lib-directory">lib Directory</h1>
+<p><a href="http://blakeerickson.com/2014/01/24/rake-tasks-and-helper-methods">Yesterday</a> I wrote about creating my rake task for the longest streak app, but I made a big mistake in putting the class files that will be fetching all the user and contribution info from GitHub from github into the <em>helpers</em> directory.</p>
+<p>Esspecially since these files don&#39;t contain methods that the models or the controller will be accessing I decided to move them into the <em>lib</em> directory. I think another common place to put files like this would be inside of the <em>models</em> directory, but since these methods, as far as I know, won&#39;t be used in the web portion of this project helping to serve data to web pages so I think they belong in the <em>lib</em> directory. Hopefully I&#39;m correct in this, and if I&#39;m not please let me know!</p>
+<h3 id="including-the-lib-directory">Including the <em>lib</em> directory</h3>
+<p>Now that I moved my files into the <em>lib</em> directory I need to be able to access them from inside of my rake task. To do this you need to inlclude the <em>lib</em> directory into Rails Load path which you can do by adding the line <code>config.autoload_paths += %W(#{config.root}/lib)</code> inside of <em>config/application.rb</em>:</p>
+<pre><code>.
+.
+.
+  module LongestStreak1
+    class Application &lt; Rails::Application
+      .
+      .
+      .
+      config.autoload_paths += %W(#{config.root}/lib)
+    end
+  end
+</code></pre><p>Here is a link to my <a href="https://github.com/oblakeerickson/longest_streak/commit/d4e762443a1a96ee804ee28cc4247065f6377172">commit</a> on GitHub addressing this issue.</p>
+
+    <hr/>
+        <div class="footer">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            Blake Erickson
+                            <br/>
+                            Software Developer at
+                            <a href="https://royaljay.com/">Royal Jay</a>
+                            <br/>
+                            o.blakeerickson@gmail.com
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            <a href="http://github.com/oblakeerickson/">github.com/oblakeerickson</a><br />
+                            <a href="http://twitter.com/oblakeerickson/">twitter.com/oblakeerickson</a><br />
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.container -->
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+        var pageTracker = _gat._getTracker("UA-42191832-1");
+        pageTracker._trackPageview();
+    </script>
+    <!-- Google Analytics end -->
+
+</body>
+</html>
+

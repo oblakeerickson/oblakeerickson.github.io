@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+
+    <title>Blake Erickson</title>
+
+    <!-- Bootstrap core CSS -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/site.css"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Blake Erickson</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px;">
+      <h1 id="a-simple-todo-app-part-2">A Simple Todo App - Part 2</h1>
+<p>In <a href="/2015/04/20/a-simple-todo-app-part-1/">Part 1</a> we built the backend for our
+todo app and now we are going to build the frontend in Angular. Let&#39;s get that
+setup.</p>
+<h2 id="download-angular-and-create-bundle">Download Angular and Create Bundle</h2>
+<p>The first thing we need to is download angular and add it to our C# project. Go
+to <a href="https://code.angularjs.org">https://code.angularjs.org</a> and click on 1.2.2
+(yes, I&#39;m using an older version). Download &#39;angular.js&#39; and put it into your
+Scripts folder. You now need to show all files and then select the &#39;angular.js&#39;
+file and click add to project.</p>
+<p>Now open up BundleConfig.cs located inside of the <code>App_Start</code> folder. At the
+bottom of the <code>RegisterBundles</code> method add another bundle that we will call
+<code>angular</code>.</p>
+<pre><code>bundles.Add(new ScriptBundle(&quot;~/bundles/angular&quot;).Include( 
+    &quot;~/Scripts/angular.js&quot;));
+</code></pre><p>Now that we have angular installed we need a place to store the actually
+JavaScript application code. Inside of the Scripts folder create a folder called
+&#39;app&#39; and create a file inside of that folder called &#39;app.js&#39;.</p>
+<p>Now we need to go back to our &#39;BundleConfig.js&#39; file and add another bundle we
+will call <code>app</code>.</p>
+<pre><code>bundles.Add(new ScriptBundle(&quot;~/bundles/app&quot;).Include(
+    &quot;~/Scripts/app/app.js&quot;));
+</code></pre><h2 id="add-angular-to-layout">Add Angular to Layout</h2>
+<p>We still are not quite setup yet we still need to include our bundle into our
+layout file. So open up <code>_Layout.cshtml</code> which is inside of &#39;Views/Shared/&#39;. Near
+the top inside of the <code>&lt;head&gt;&lt;/head&gt;</code> tags add the following lines below the
+other <code>@Scripts.Render</code> line:</p>
+<pre><code>@Scripts.Render(&quot;~/bundles/angular&quot;)
+@Scripts.Render(&quot;~/bundles/app&quot;)
+</code></pre><p>Still inside of <code>Views/Shared/_Layout.cshtml</code> modify the <code>&lt;html&gt;</code> tag so that it
+looks like:</p>
+<pre><code>&lt;html ng-app=&quot;app&quot;&gt;
+</code></pre><p>This lets angular know that we want to start using it.</p>
+<h2 id="create-our-angular-app-and-controller">Create Our Angular App and Controller</h2>
+<p>Now let&#39;s open up <code>Scripts/app/app.js</code> to start working on the angular part of
+our app:</p>
+<p>{% highlight javascript %}
+var model = {};</p>
+<p>var app = angular.module(&#39;app&#39;, []);</p>
+<p>app.controller(&quot;ToDoCtrl&quot;, function ($scope, $http) {</p>
+<pre><code>$http.get(&quot;api/TodoItems&quot;).success(function (data) {
+    model.items = data;
+});
+
+$scope.todo = model;
+</code></pre><p>});</p>
+<pre><code>
+In the above section of code we created an angular module and gave it the name
+of &#39;app&#39;. We then created a controller called &quot;ToDoCtrl&quot; and told it it fetch
+data from our api and store it in model.items. We then added model.items to our
+`$scope` so that we can access it our view, which we will create next.
+
+## Create Our View 
+
+Now open up `Views/Home/Index.cshtml` and replace the entire contents with:
+</code></pre><p><div class="todoItems" ng-controller="ToDoCtrl">
+    <div class="container body-content">
+        <div class="page-header">
+            <h1>Todo List</h1>
+        </div>
+        <div class="panel col-md-4">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in todo.items">
+                        <td>{{item.Name}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+```</p>
+<p>The above html code specifies that we are using the &quot;ToDoCtrl&quot; and using an
+angular directive called <code>ng-repeat</code> to loop through each of the todo items.</p>
+<h2 id="see-our-work">See Our Work</h2>
+<p>On your Visual Studio tool bar you should be able to hit the green &quot;Continue&quot;
+(Play) button and have your app open up in a web browser. You should see your
+list of todo items.</p>
+<h2 id="wrap-up">Wrap Up</h2>
+<p>This concludes Part 2 where we used angular to display our todo items. In <a href="/2015/05/18/a-simple-todo-app-part-3/">Part
+3</a>
+we will work on being able to create and delete todo items.</p>
+
+    <hr/>
+        <div class="footer">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            Blake Erickson
+                            <br/>
+                            Software Developer at
+                            <a href="https://royaljay.com/">Royal Jay</a>
+                            <br/>
+                            o.blakeerickson@gmail.com
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            <a href="http://github.com/oblakeerickson/">github.com/oblakeerickson</a><br />
+                            <a href="http://twitter.com/oblakeerickson/">twitter.com/oblakeerickson</a><br />
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.container -->
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+        var pageTracker = _gat._getTracker("UA-42191832-1");
+        pageTracker._trackPageview();
+    </script>
+    <!-- Google Analytics end -->
+
+</body>
+</html>
+

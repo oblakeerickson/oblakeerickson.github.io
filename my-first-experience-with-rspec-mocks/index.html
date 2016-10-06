@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+
+    <title>Blake Erickson</title>
+
+    <!-- Bootstrap core CSS -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/site.css"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Blake Erickson</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px;">
+      <h1 id="my-first-experience-with-rspec-mocks">My First Experience with RSpec Mocks</h1>
+<p>&quot;Writing a passing controller spec shouldn&#39;t take 2 hours!&quot;, I screamed inside my head at 7 in the morning on Christmas Eve.</p>
+<p>I was trying to write a simple test for my people controller&#39;s create action:</p>
+<pre><code>def create
+  @person = Person.new(person_attributes)
+  if @person.save
+    redirect_to @person, notice: &quot;Person created.&quot;
+  else
+    render :new
+  end
+end
+</code></pre><p>In 2 hours all I had come up with was this incomplete &quot;passing&quot; test:</p>
+<pre><code>context &quot;when person is valid&quot; do
+  it &quot;redirects to #show&quot; do
+    post :create, person: {first_name: &quot;first_name&quot;}
+  end
+end
+</code></pre><p>The problem that I was having was that I couldn&#39;t figure out how get the <code>id</code> so that I could pass it to <code>person_path</code> and test that it was correctly redirecting to &quot;#show&quot;.</p>
+<p>I eventually got to this sloppy point where I&#39;m forcing the person id a little too hard:</p>
+<pre><code>context &quot;when person is valid&quot; do
+  it &quot;redirects to #show&quot; do
+    person = double(:person, id: 1)
+    post :create, id: person.id, person: { first_name: &quot;first_name&quot; }
+    expect(response).to redirect_to person_path(person.id)
+  end
+end
+</code></pre><p>This still doesn&#39;t feel like the best solution, and I still feel like I have no idea what I&#39;m doing.</p>
+<p>If you actually read the documentation on RSpec mocks it might help a bit. Let&#39;s look at the the <a href="https://github.com/rspec/rspec-mocks#method-stubs">Method Stubs</a> section:</p>
+<blockquote>
+<p>A method stub is an implementation that returns a pre-determined value.</p>
+</blockquote>
+<p>This means that we can create a fake object, give it fake methods, and give those fake methods fake return values. This fake object with fake methods will need to match exactly how we do it in the controller, but by using mocks we can have faster tests because it doesn&#39;t actually touch the model validations.</p>
+<p>The first thing we need to do is create a new instance of the Person Class just like we do in our controller. The first line in our controller create method looks like:</p>
+<pre><code>@person = Person.new(person_attributes)
+</code></pre><p>and so the first line in our spec will look like:</p>
+<pre><code>person = Person.create(first_name: &quot;first_name&quot;)
+</code></pre><p>Now let&#39;s look at the second line in our controller create action:</p>
+<pre><code>if @person.save
+</code></pre><p>And we can mock this behavior with:</p>
+<pre><code>allow(person).to receive(:save).and_return(true)
+</code></pre><p>Notice there are 3 separate sections to the above line:</p>
+<ul>
+<li><code>allow().to</code></li>
+<li><code>receive()</code></li>
+<li><code>and_return()</code></li>
+</ul>
+<p>Now that we have mocked this behavior I thought we could write our expect statement, but we can&#39;t just yet because we will get this failure when we run our test:</p>
+<pre><code>Expected &quot;http://test.host/people/1&quot; to be === &quot;http://test.host/people/2&quot;.
+</code></pre><p>This brings my back to my origin problem in that the <code>id</code>&#39;s don&#39;t line up. To fix this we need to mock the <code>Person</code> class and have it return the <code>person</code> object we created earlier:</p>
+<pre><code>allow(Person).to receive(:new).with(first_name: &quot;first_name&quot;).and_return(person)
+</code></pre><p>Now that we have created this mock for the <code>Person</code> class, it won&#39;t actually use up the first <code>id</code> and leave it open for our controller to create a person with the <code>id</code> of &#39;1&#39;. Which solves our id missmatch problem.</p>
+<p>Now when we can write our post request:</p>
+<pre><code>post :create, person: { first_name: &quot;first_name&quot; }
+</code></pre><p>and our expect statement we can pass in our person object to the <code>person_path()</code>:</p>
+<pre><code>expect(response).to redirect_to person_path(person)
+</code></pre><p>Here is what the complete test looks like:</p>
+<pre><code>context &quot;when person is valid&quot; do
+  it &quot;redirects to #show&quot; do
+    person = Person.create(first_name: &quot;first_name&quot;)
+    allow(person).to receive(:save).and_return(true)
+    allow(Person).to receive(:new).
+    with(first_name: &quot;first_name&quot;).
+    and_return(person)
+
+    post :create, person: { first_name: &quot;first_name&quot; }
+
+    expect(response).to redirect_to person_path(person)
+  end
+end
+</code></pre><p>This is not a requirement, but I think it makes the tests much more readable if you leave a blank like before the post request and a blank line before the expect statement.</p>
+
+    <hr/>
+        <div class="footer">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            Blake Erickson
+                            <br/>
+                            Software Developer at
+                            <a href="https://royaljay.com/">Royal Jay</a>
+                            <br/>
+                            o.blakeerickson@gmail.com
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            <a href="http://github.com/oblakeerickson/">github.com/oblakeerickson</a><br />
+                            <a href="http://twitter.com/oblakeerickson/">twitter.com/oblakeerickson</a><br />
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.container -->
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+        var pageTracker = _gat._getTracker("UA-42191832-1");
+        pageTracker._trackPageview();
+    </script>
+    <!-- Google Analytics end -->
+
+</body>
+</html>
+
