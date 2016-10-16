@@ -69,11 +69,11 @@ table {
 }
 
 ::selection {
-  background: #e1089b;
+  background: #f835b9;
 }
 
 ::-moz-selection {
-  background: #e1089b;
+  background: #f835b9;
 }
 
 /*****************************************************************************/
