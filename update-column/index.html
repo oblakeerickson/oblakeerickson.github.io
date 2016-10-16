@@ -45,7 +45,7 @@
 
     <div class="container" style="margin-top: 100px;">
       <h1 id="update-column">Update Column</h1>
-<h3 id="mar-11th-2014">Mar 11th, 2014</h3>
+<h5 id="mar-11th-2014">Mar 11th, 2014</h5>
 <p>Tonight I worked on updating a single attribute for an existing User. While I think there is still probably room for some improvement, I do have the basic functionality down. There are several rails methods that you can use to update a User in your database, <code>update_attributes</code>, <code>update_attribute</code>, <code>update_column</code>, plus some others.</p>
 <p>I ended up going with <code>update_column</code> because it doesn&#39;t talk to my Model and perform a validation. Right now this is the only way I could get it to work since I don&#39;t want it to update all the other User attributes.</p>
 

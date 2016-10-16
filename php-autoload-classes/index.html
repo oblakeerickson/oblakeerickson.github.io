@@ -45,7 +45,7 @@
 
     <div class="container" style="margin-top: 100px;">
       <h1 id="php-autoload-classes">PHP Autoload Classes</h1>
-<h3 id="aug-14th-2014">Aug 14th, 2014</h3>
+<h5 id="aug-14th-2014">Aug 14th, 2014</h5>
 <p>I&#39;ve been working for awhile now to clean up a legacy PHP application by breaking up extremely large php files into separate much smaller class files. While the code base is becoming much cleaner and easier to manage its is full of require statements. Personally I don&#39;t think require statements are necessarily a bad thing, but it just becomes another things to manage and potentially something that can break.</p>
 <p>I&#39;ve been making great progress on cleaning up our codebase, but I wasn&#39;t really sure about some of the best practices in PHP when building a framework so I purchased &quot;<a href="https://leanpub.com/mlaphp">Modernizing Legacy Applications in PHP</a>&quot; which has been extremely helpful. One of the first things it talks about is autoloading.</p>
 <p>To eliminate all of these <code>require</code> statements you can call an autoloader method as one of the first things your app runs. Be sure to use <a href="http://php.net/manual/en/function.spl-autoload-register.php"><code>spl_autoload_register</code></a> and not the old __autoload function.</p>

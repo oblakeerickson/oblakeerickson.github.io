@@ -45,7 +45,7 @@
 
     <div class="container" style="margin-top: 100px;">
       <h1 id="lib-directory">lib Directory</h1>
-<h3 id="jan-25th-2014">Jan 25th, 2014</h3>
+<h5 id="jan-25th-2014">Jan 25th, 2014</h5>
 <p><a href="http://blakeerickson.com/2014/01/24/rake-tasks-and-helper-methods">Yesterday</a> I wrote about creating my rake task for the longest streak app, but I made a big mistake in putting the class files that will be fetching all the user and contribution info from GitHub from github into the <em>helpers</em> directory.</p>
 <p>Esspecially since these files don&#39;t contain methods that the models or the controller will be accessing I decided to move them into the <em>lib</em> directory. I think another common place to put files like this would be inside of the <em>models</em> directory, but since these methods, as far as I know, won&#39;t be used in the web portion of this project helping to serve data to web pages so I think they belong in the <em>lib</em> directory. Hopefully I&#39;m correct in this, and if I&#39;m not please let me know!</p>
 <h3 id="including-the-lib-directory">Including the <em>lib</em> directory</h3>

@@ -45,7 +45,7 @@
 
     <div class="container" style="margin-top: 100px;">
       <h1 id="rake-tasks-and-helper-methods">Rake Tasks and Helper Methods</h1>
-<h3 id="jan-24th-2014">Jan 24th, 2014</h3>
+<h5 id="jan-24th-2014">Jan 24th, 2014</h5>
 <p><strong>UPDATE</strong>: I made a big mistake in this post, read why <a href="http://blakeerickson.com/2014/01/25/lib-directory">here</a>.</p>
 <p>As I mentioned <a href="http://blakeerickson.com/2014/01/10/its-okay-to-start-over">two weeks ago</a> I started to rewrite my <a href="https://github.com/oblakeerickson/longest_streak">longest streak app</a> so that it could be a Rails app and not just a command line ruby application. I&#39;m not really rewriting it per say, more just putting my existing ruby code into the rails structure. Yesterday I worked on setting up my models. I have two right now, a user model and a contributions model. And this morning I worked on setting up a rake task for connecting to the GitHub API and getting user data. I was able to get my Rake Task to talk to my User model and to also talk to two helper methods that I created.</p>
 <p>One of my Helpers is used for setting up my connection to GitHub called <em>connection_helper.rb</em>:</p>
