@@ -59,6 +59,23 @@ table {
   word-wrap: break-word;
 }
 
+.navbar-inverse {
+  background-color: #e1089b;
+  border-color: #c00784;
+}
+
+.navbar-inverse .navbar-brand {
+  color: #fff;
+}
+
+::selection {
+  background: #e1089b;
+}
+
+::-moz-selection {
+  background: #e1089b;
+}
+
 /*****************************************************************************/
 /*
 /* Home
