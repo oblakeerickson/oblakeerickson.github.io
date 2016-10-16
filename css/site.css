@@ -60,8 +60,8 @@ table {
 }
 
 .navbar-inverse {
-  background-color: #e1089b;
-  border-color: #c00784;
+  background-color: #343d62;
+  border-color: #343d62;
 }
 
 .navbar-inverse .navbar-brand {
@@ -69,11 +69,11 @@ table {
 }
 
 ::selection {
-  background: #f835b9;
+  background: #fb87d5;
 }
 
 ::-moz-selection {
-  background: #f835b9;
+  background: #fb87d5;
 }
 
 /*****************************************************************************/
