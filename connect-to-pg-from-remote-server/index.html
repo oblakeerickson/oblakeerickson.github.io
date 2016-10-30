@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+
+    <title>Blake Erickson</title>
+
+    <!-- Bootstrap core CSS -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/site.css"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Blake Erickson</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px;">
+      <h1 id="connect-to-pg-from-remote-server">Connect to pg from remote server</h1>
+<h5 id="oct-30th-2016">Oct 30th, 2016</h5>
+<p>For development I have a separate vm for my postgres database, but by default
+connections to postgres can only come from localhost.</p>
+<p>To allow connections to postgres other than from localhost you need to do two
+things: (1) Modify <code>pg_hba.conf</code> and (2) modify the <code>postgresql.conf</code>
+file. <strong>NOTE: these settings are for local development only and should not be
+used in production</strong>.</p>
+<p>These files can be found in <code>/etc/postgresql/9.5/main/</code>.</p>
+<p>For <code>pg_hba.conf</code> change the IPv4 address from <code>127.0.0.1</code> to:</p>
+<pre><code># IPv4 local connections:
+host    all             all             0.0.0.0/0               md5
+</code></pre><p>And for <code>postgresql.conf</code> file set the <code>listen_addresses</code> to <code>&#39;*&#39;</code>:</p>
+<pre><code>listen_addresses = &#39;*&#39;
+</code></pre><p>Also I didn&#39;t have a password set for the user I was using. To set the password
+for a pg user you can use this command:</p>
+<pre><code>ALTER USER username WITH PASSWORD &#39;password&#39;;
+</code></pre><p>To connect to the database from node:</p>
+<pre><code>var pg = require(&#39;pg&#39;);
+var connectionString = &quot;postgres://username:password@192.168.0.10:5432/dbname&quot;;
+</code></pre>
+    <hr/>
+        <div class="footer">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            Blake Erickson
+                            <br/>
+                            Software Developer at
+                            <a href="https://royaljay.com/">Royal Jay</a>
+                            <br/>
+                            o.blakeerickson@gmail.com
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            <a href="http://github.com/oblakeerickson/">github.com/oblakeerickson</a><br />
+                            <a href="http://twitter.com/oblakeerickson/">twitter.com/oblakeerickson</a><br />
+                            <a href="https://www.instagram.com/oblakeerickson/">instagram.com/oblakeerickson</a><br />
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.container -->
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+        var pageTracker = _gat._getTracker("UA-42191832-1");
+        pageTracker._trackPageview();
+    </script>
+    <!-- Google Analytics end -->
+
+</body>
+</html>
+
