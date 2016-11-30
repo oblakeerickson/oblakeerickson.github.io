@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+
+    <title>Blake Erickson</title>
+
+    <!-- Bootstrap core CSS -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/site.css"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Blake Erickson</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px;">
+      <h1 id="how-to-add-multiple-cors-endpoints-in-express">How to add multiple CORS endpoints in express</h1>
+<h5 id="nov-30th-2016">Nov 30th, 2016</h5>
+<p>For <a href="https://www.skillsift.com">SkillSift</a> I currently have two separate front
+end single page applications that have their own urls. One is for the actual app
+itself and the other is for the sysadmin app. They both need to talk to the same
+API though.</p>
+<p>Originally I was doing something like this:</p>
+<pre><code>res.header(&#39;Access-Control-Allow-Origin&#39;, &#39;http://localhost:3001&#39;);
+res.header(&#39;Access-Control-Allow-Origin&#39;, &#39;http://localhost:3002&#39;);
+</code></pre><p>but the second line just overrides the first line so you can no longer access the api from &#39;<a href="http://localhost:3001">http://localhost:3001</a>&#39;.</p>
+<p>To be able to have multiple CORS origins you can do something like:</p>
+<pre><code>var cors = function(req, res, next) {
+  var whitelist = [
+    &#39;http://localhost:3001&#39;,
+    &#39;http://localhost:3002&#39;,
+  ];
+  var origin = req.headers.origin;
+  if (whitelist.indexOf(origin) &gt; -1) {
+    res.setHeader(&#39;Access-Control-Allow-Origin&#39;, origin);
+  }
+  res.setHeader(&#39;Access-Control-Allow-Methods&#39;, &#39;GET,PUT,POST,DELETE&#39;);
+  res.setHeader(&#39;Access-Control-Allow-Headers&#39;, &#39;Content-Type,Authorization&#39;);
+  next();
+}
+app.use(cors);
+</code></pre><p>In the above code we have created an array of approved origins. And if the current origin is in the array then we will set the &#39;Access-Control-Allow-Origin&#39; just for that origin on this api request.</p>
+<p>Also as a side note I&#39;m not really sure what the difference is between <code>res.header</code> and <code>res.setHeader</code>, but since there is actually documentation on <a href="https://nodejs.org/api/http.html#http_response_setheader_name_value"><code>res.setHeader</code></a> I&#39;m going to use that.</p>
+
+    <hr/>
+        <div class="footer">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            Blake Erickson
+                            <br/>
+                            Software Developer at
+                            <a href="https://royaljay.com/">Royal Jay</a>
+                            <br/>
+                            o.blakeerickson@gmail.com
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="contact">
+                        <p>
+                            <a href="http://github.com/oblakeerickson/">github.com/oblakeerickson</a><br />
+                            <a href="http://twitter.com/oblakeerickson/">twitter.com/oblakeerickson</a><br />
+                            <a href="https://www.instagram.com/oblakeerickson/">instagram.com/oblakeerickson</a><br />
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.container -->
+
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+        var pageTracker = _gat._getTracker("UA-42191832-1");
+        pageTracker._trackPageview();
+    </script>
+    <!-- Google Analytics end -->
+
+</body>
+</html>
+
