@@ -46,8 +46,10 @@
     <div class="container" style="margin-top: 100px;">
       <h1 id="masterless-puppet-on-ubuntu-16-04">Masterless Puppet on Ubuntu 16.04</h1>
 <h5 id="mar-6th-2017">Mar 6th, 2017</h5>
-<p>This tutorial is adapted from [this article] where we will cover Installing a
-Masterless Puppet configuration on Ubuntu 16.04 using GitHub.</p>
+<p>This tutorial is adapted from <a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-a-masterless-puppet-environment-on-ubuntu-14-04">this
+article</a>
+where we will cover Installing a Masterless Puppet configuration on Ubuntu 16.04
+using GitHub.</p>
 <p>You can setup a fresh Ubuntu 16.04 box on
 <a href="https://m.do.co/c/6181643725e8">DigitalOcean</a> or you can setup
 <a href="https://www.virtualbox.org/">VirtualBox</a> and run a VM locally.</p>
@@ -114,31 +116,29 @@ vim cron-puppet/manifests/init.pp
         require =&gt; File[&#39;post-hook&#39;],
     }
 }
+</code></pre><p>Now edit <code>cron-puppet/files/post-merge</code>:</p>
+<pre><code>
+#!/bin/bash -e
+## Run Puppet locally using puppet apply
+/usr/bin/puppet apply /etc/puppet/manifests/site.pp
 
-Now edit `cron-puppet/files/post-merge`:
-</code></pre><p>#!/bin/bash -e</p>
-<h2 id="run-puppet-locally-using-puppet-apply">Run Puppet locally using puppet apply</h2>
-<p>/usr/bin/puppet apply /etc/puppet/manifests/site.pp</p>
-<h2 id="log-status-of-the-puppet-run">Log status of the Puppet run</h2>
-<p>if [ $? -eq 0 ]
+## Log status of the Puppet run
+if [ $? -eq 0 ]
 then
     /usr/bin/logger -i &quot;Puppet has run successfully&quot; -t &quot;puppet-run&quot;
     exit 0
 else
     /usr/bin/logger -i &quot;Puppet has ran into an error, please run Puppet manually&quot; -t &quot;puppet-run&quot;
     exit 1
-fi</p>
-<pre><code>
-Finally, we have to tell Puppet to run this module by creating a global
-manifest, which is canonically found at /etc/puppet/manifests/site.pp.
-</code></pre><p>node default {
+fi
+</code></pre><p>Finally, we have to tell Puppet to run this module by creating a global
+manifest, which is canonically found at /etc/puppet/manifests/site.pp.</p>
+<pre><code>node default {
     include cron-puppet
-}</p>
-<pre><code>
-Now run:
-</code></pre><p>sudo puppet apply /etc/puppet/manifests/sites.pp
-```</p>
-<p>and hopefully you don&#39;t see any errors.</p>
+}
+</code></pre><p>Now run:</p>
+<pre><code>sudo puppet apply /etc/puppet/manifests/sites.pp
+</code></pre><p>and hopefully you don&#39;t see any errors.</p>
 <p>Now commit you changes and push them up to GitHub. Now you can pull this repo
 down to your local computer, make changes, push them back up to GitHub, and
 they will automatically be applied to your server.</p>
